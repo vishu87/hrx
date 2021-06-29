@@ -92,9 +92,9 @@
                         @endforeach
                     </tbody>
                 </table>
-               <!--  <div class="card-toolbar">
+                <div class="card-toolbar">
                     <a href="{{url('/admin/users/add')}}" class="btn btn-primary" >Add New</a>
-                </div> -->
+                </div>
                 
             </div>
            
