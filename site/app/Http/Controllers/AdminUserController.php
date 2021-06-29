@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Input ,Redirect,Schema, Validator, Hash, App\ChangeLog, App\Approval,App\Proxy,App\JobOffers;
 use App\MailQueue;
 
-class AdminController extends Controller {
+class AdminUserController extends Controller {
 
     public function dashboard(){
         $companies = DB::table("companies")->count();
@@ -21,31 +21,6 @@ class AdminController extends Controller {
         ,"offers"=>$offers]);
     }
 
-    public function alertList(){
-        $sidebar = 'alerts';
-
-        return view('admin.alerts.list',compact('sidebar'));   
-    }
-
-    public function migrate(){
-    	$date_arr = ['add_date','meeting_date','vote_completed_on','completed_on','released_on','addendum_release','record_date','evoting_start','evoting_end'];
-    	$proxy_ad = Proxy::get();
-    	foreach ($proxy_ad as $proxy) {
-    		$entry = DB::table('proxy_ad_dump')->where('id',$proxy->id)->first();
-    		if($entry){
-	    		foreach ($date_arr as $val) {
-	    			if($entry->$val != '' && $entry->$val != 0){
-
-	    				$proxy->$val = date('Y-m-d',$entry->$val);
-	    			}
-	    		}
-	    		$proxy->save();
-	    		
-    		}
-    	}
-    	return "ok";
-    }
-
     public function index(){
 
       $users = User::getMainUsersObject();
@@ -53,7 +28,30 @@ class AdminController extends Controller {
       $subsidebar = 'users'; 
      return  view('admin.users.list',compact('users','sidebar','subsidebar'));
     }
+    public function alertList(){
+        $sidebar = 'alerts';
 
+        return view('admin.alerts.list',compact('sidebar'));   
+    }
+
+    public function migrate(){
+        $date_arr = ['add_date','meeting_date','vote_completed_on','completed_on','released_on','addendum_release','record_date','evoting_start','evoting_end'];
+        $proxy_ad = Proxy::get();
+        foreach ($proxy_ad as $proxy) {
+            $entry = DB::table('proxy_ad_dump')->where('id',$proxy->id)->first();
+            if($entry){
+                foreach ($date_arr as $val) {
+                    if($entry->$val != '' && $entry->$val != 0){
+
+                        $proxy->$val = date('Y-m-d',$entry->$val);
+                    }
+                }
+                $proxy->save();
+                
+            }
+        }
+        return "ok";
+    }
 
     public function addusers($id = 0){
         $sidebar = 'users';
@@ -70,6 +68,7 @@ class AdminController extends Controller {
         return Response::json($data,200,array());
 
     }
+  
 
     public function store(Request $request,$id=0){
         $cre = [

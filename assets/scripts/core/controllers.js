@@ -108,6 +108,7 @@ app.controller('companyCtrl', function($scope , $http, $timeout , DBService){
         morePersons:[],
     };
     $scope.person = {name:'',email:'',phone_no:''};
+    $scope.companies =[];
 
     $scope.companyInit = function(){
         $scope.processing = true;

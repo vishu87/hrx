@@ -13,7 +13,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Classes\Theme\Metronic;
 
-Route::get('/login', 'UserController@login')->name("login");
+Route::get('/', 'UserController@login')->name("login");
 Route::post('/login', 'UserController@postLogin');
 Route::get('/forget-password', 'UserController@forgetPassword');
 Route::post('/forget-password', 'UserController@postForgetPassword');
@@ -33,19 +33,21 @@ Route::group(["middleware"=>["auth"]],function(){
 	
 });
 
-Route::group(["middleware"=>["auth"],"prefix"=>"admin"],function(){
-	
+Route::group(["middleware"=>["auth","ses"],"prefix"=>"admin"],function(){
+
 	Route::get('/dashboard','AdminController@dashboard');
 	
 	Route::group(["prefix"=>"companies"],function(){
 		Route::get('/','CompaniesController@companies');
 		Route::get('/add','CompaniesController@addcompany');
+		Route::get('/view/{company_id}','CompaniesController@companyview');
+		
 	});
 
 	Route::group(["prefix"=>"users"],function(){
-		Route::get('/','AdminController@index');
-		Route::get('/add/{id?}','AdminController@addusers');
-		Route::post('/store/{id?}','AdminController@store');
+		Route::get('/','AdminUserController@index');
+		Route::get('/add/{id?}','AdminUserController@addusers');
+		Route::post('/store/{id?}','AdminUserController@store');
 	});
 	
 });
@@ -71,6 +73,8 @@ Route::group(["middleware"=>["auth","admin"],"prefix"=>"company"],function(){
 });
 
 Route::group(["middleware"=>["auth"],"prefix"=>"api" ],function(){
+	// Route::get('get-report/{report_id}','SESController@getReport');
+
 	Route::group(["prefix"=>"company"],function(){
 		Route::post('/save','CompaniesController@storeCompany');
 
@@ -90,7 +94,6 @@ Route::group(["middleware"=>["auth"],"prefix"=>"api" ],function(){
 			Route::post('/init','CompaniesController@companiesInit');
 			Route::post('/save','CompaniesController@storeCompany');
 			Route::get('/delete/{company_id}','CompaniesController@deleteCompany');
-			Route::get('/view','CompaniesController@viewcompany');
 
 		});
 
