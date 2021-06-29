@@ -8,14 +8,17 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
 use Input,Redirect,Validator,Hash,Response,Session;
 use App\User,App\Notification,App\NotificationView;
-use App\MailQueue, DB, App\Portfolio;
-use App\Http\Controllers\ExportController;
+use DB;
 
 class UserController extends Controller {
 
 	public function login(){
 		return view('login');
 	}
+
+    public function dashboard(){
+        return view('index');
+    }
 
 	public function postLogin(){
 
@@ -28,16 +31,75 @@ class UserController extends Controller {
 			
             if(Auth::attempt($cre)){
 
+                if(!Auth::user()->last_login){
+                    return Redirect::to('/update-password');
+                }
+
                 $user = User::find(Auth::id());
+                $user->last_login = date("Y-m-d H:i:s");
                 $user->save();
 
-                Session::put('privilege',$user->privilege);
+                $check_password_update = DB::table('user_activities')->where('user_id',Auth::id())->where('activity','change_password')->orderBy('id','desc')->first();
 
-                if(Auth::user()->privilege == 1 || Auth::user()->privilege == 3){
+                if($check_password_update){
+                    $datediff = strtotime("now") - strtotime($check_password_update->updated_at);
+
+                    $days = round($datediff / (60*60*24));
+
+                    if($days > 90){
+                        return Redirect::to('/update-password');
+                    }    
+                }
+
+                $last_view = NotificationView::where('user_id',Auth::id())->first();
+
+                $notifications = Notification::select('notifications.id');
+                if( Auth::user()->privilege == 3 || Auth::user()->privilege == 4){
+                    $parent_user_id = Auth::user()->parent_user_id;
+                    $notifications = $notifications->join("aims_user_voting_proxy_reports",function($query) use ($parent_user_id) {
+                        $query->on("aims_user_voting_proxy_reports.report_id","=","notifications.report_id")->where("aims_user_voting_proxy_reports.user_id","=",$parent_user_id);
+                    });
+                }
+
+                if($last_view){
+                    $notifications = $notifications->where('notifications.updated_at','>',$last_view->updated_at);
+                }
+
+                $count = $notifications->count();
+
+                if(Auth::user()->privilege == 1){
                     return Redirect::to('/admin/dashboard');
                 }
+
+                if(Auth::user()->privilege == 2){
+                    Session::put('notification_url','company/notifications');
+                    if($count > 0){
+                        return Redirect::to('/company/dashboard')->with('new_notifications','You have '.$count.' new notifications');
+                    }else{
+
+                        return Redirect::to('/company/dashboard');
+                    }
+                }
+
+                if(Auth::user()->privilege == 3){
+                    return Redirect::to('/mf/dashboard');
+                }
+
+                // if(Auth::user()->privilege == 4){
+                //     Session::put('notification_url','client/notifications');
+                //     if($count > 0){
+                //         return Redirect::to('/client/dashboard')->with('new_notifications','You have '.$count.' new notifications');
+                //     }else{
+
+                //         return Redirect::to('/client/dashboard');
+                //     }
+                // }
+
+                // if(Auth::user()->privilege == 5){
+                //     return Redirect::to('/admin/users');
+                // }
                 
-			} else {
+			}else{
 
 				return Redirect::back()->withInput()->with('failure','Invalid email or password');
 			}
@@ -96,10 +158,74 @@ class UserController extends Controller {
         $sidebar = "settings";
         $subsidebar = "settings";
 
-        return view('profile',compact('sidebar','subsidebar'));
+        $yes_no = ["0"=>"No","1"=>"Yes"];
+
+        if(Auth::user()->privilege == 3){
+            $user = User::find(Auth::user()->parent_user_id);
+            $disable_checker = $user->disable_checker;
+        } else {
+            $disable_checker = 0;
+        }
+
+        $has_sub = 1;
+
+        return view('profile',compact('sidebar','subsidebar','yes_no','disable_checker','has_sub'));
     }
 
-    
+    public function storeSettings(){
+
+        if(Input::has("db_deadline")){
+            $db_deadline = Input::get("db_deadline");
+            if($db_deadline < 0){
+                return Redirect::back()->with("failure","Deadline should be positive number")->withInput();
+            }
+        }
+
+        if(Input::has("db_deadline_physical")){
+            $db_deadline_physical = Input::get("db_deadline_physical");
+            if($db_deadline_physical < 0){
+                return Redirect::back()->with("failure","Deadline should be positive number")->withInput();
+            }
+        }
+
+        if(Input::has("db_deadline_physical_out")){
+            $db_deadline_physical = Input::get("db_deadline_physical_out");
+            if($db_deadline_physical < 0){
+                return Redirect::back()->with("failure","Deadline should be positive number")->withInput();
+            }
+        }
+
+        $flag = false;
+
+        if(Input::has("db_deadline")){
+            $flag = true;
+            DB::table("settings")->where("meta_key","db-deadline")->update(array(
+                "value" => Input::get("db_deadline")
+            ));
+        }
+
+        if(Input::has("db_deadline_physical")){
+            $flag = true;
+            DB::table("settings")->where("meta_key","db-deadline-physical")->update(array(
+                "value" => Input::get("db_deadline_physical")
+            ));
+        }
+
+        if(Input::has("db_deadline_physical_out")){
+            $flag = true;
+            DB::table("settings")->where("meta_key","db-deadline-physical-out")->update(array(
+                "value" => Input::get("db_deadline_physical_out")
+            ));
+        }
+
+        if($flag){
+            ExportController::resetDeadline(date("Y-m-d"));
+        }
+
+        return Redirect::back()->with("success","Deadlines are successfully updated");
+
+    }
+
     public function changePassword(){
         return view('update_password');
     }
@@ -131,16 +257,54 @@ class UserController extends Controller {
                 $user->last_login = date("Y-m-d H:i:s");
                 $user->save();
 
-                DB::table('user_activities')->insert(["user_id"=>Auth::id() , "activity"=>"change_password","remark"=>Input::get('new_password')]);
+                DB::table('user_activities')->insert([
+                    "user_id"=>Auth::id(),
+                    "activity"=>"change_password",
+                    "remark"=>Input::get('new_password'),
+                    "updated_at" => date("Y-m-d H:i:s"),
+                    "created_at" => date("Y-m-d H:i:s")
+                ]);
                 
-                
-                if(Auth::user()->privilege == 1 || Auth::user()->privilege == 3){
-                    return Redirect::to('/admin/dashboard');
-                }else{
+                $last_view = NotificationView::where('user_id',Auth::id())->first();
+                if($last_view){
 
-                    return Redirect::to('/');
+                    $count = Notification::select('id')->where('updated_at','>',$last_view->updated_at)->count();
+                }else{
+                    $count =  Notification::select('id')->count();
                 }
 
+                if(Auth::user()->privilege == 1){
+                    return Redirect::to('/admin/dashboard');
+                }
+
+                if(Auth::user()->privilege == 2){
+                    Session::put('notification_url','admin/notifications');
+                    if($count > 0){
+                        return Redirect::to('/company/dashboard')->with('new_notifications','You have '.$count.' new notifications');
+                    }else{
+
+                        return Redirect::to('/admin/dashboard');
+                    }
+                }
+
+                if(Auth::user()->privilege == 3){
+                    return Redirect::to('/mf/dashboard');
+                }
+
+                // if(Auth::user()->privilege == 4){
+                //     Session::put('notification_url','client/notifications');
+                //     if($count > 0){
+                        
+                //         return Redirect::to('/client/dashboard')->with('new_notifications','You have '.$count.' new notifications');
+                //     }else{
+
+                //         return Redirect::to('/client/dashboard');
+                //     }
+                // }
+
+                // if(Auth::user()->privilege == 5){
+                //     return Redirect::to('/admin/users');
+                // }
                 
             } else {
                 return Redirect::back()->withInput()->with('failure', 'Old password does not match.');
@@ -165,20 +329,24 @@ class UserController extends Controller {
                 $user->password = $password;
                 $user->password_check = Input::get('new_password');
                 $user->save();
-                
-                $data['success']=true;
-                $data['message']='Password changed successfully';
+
+                DB::table('user_activities')->insert([
+                    "user_id"=>Auth::id(),
+                    "activity"=>"change_password",
+                    "remark"=>Input::get('new_password'),
+                    "updated_at" => date("Y-m-d H:i:s"),
+                    "created_at" => date("Y-m-d H:i:s")
+                ]);
+                return Redirect::back()->with('success', 'Password changed successfully ');
                 
             } else {
-                $data['success']=false;
-                $data['message']='Old password does not match.';
+                return Redirect::back()->withInput()->with('failure', 'Old password does not match.');
             }
         } else {
-            $data['success']=false;
-            $data['message']=$validator->errors()->first();
+            return Redirect::back()->withErrors($validator)->withInput();
         }
 
-        return Response::json($data,200,[]);
+        return Redirect::back()->withErrors($validator)->withInput()->with('failure','Unauthorised Access or Invalid Password');
     }
 
     public function forgetPassword(){
@@ -186,7 +354,7 @@ class UserController extends Controller {
     }
 
     public function postForgetPassword(Request $request){
-        $validator = Validator::make(["email"=>$request->email],["email"=>"required|email"]);
+        $validator = Validator::make(["email"=>$request->email],["email"=>"required"]);
         
         if($validator->fails()){
             return Redirect::back()->withErrors($validator)->withInput();
@@ -205,39 +373,20 @@ class UserController extends Controller {
         $user->last_login = NULL;
         $user->save();
 
-        // $mail = new MailQueue;
-        // $mail->mailto = $user->email;
-        // $mail->subject = "Sportal Student - Reset Password";
-        // $mail->content = view('mails',["user"=>$user , "type"=>"password_reset"]);
-        // $mail->save();
+        $mail = new MailQueue;
 
-        return Redirect::to('/admin')->with('success','New password has been sent to your registered email id');
-
-    }
-
-    public function uploadPhoto(){
-
-        $user = Auth::user();
-
-        $destination = 'uploads/';
-        if(Input::hasFile('profile_pic')){
-            $file = Input::file('profile_pic');
-            $extension = $file->getClientOriginalName();
-
-            $name_file = pathinfo(Input::file('profile_pic')->getClientOriginalName(), PATHINFO_FILENAME);
-            $name_file = preg_replace('/[^a-zA-Z0-9]/', '', $name_file);
-
-
-            $name = $name_file.'_'.strtotime("now").'.'.strtolower($extension);
-            $file->move($destination, $name);
-
-            $user->profile_pic = $destination.$name;  
-            $user->save(); 
-
-            return Redirect::back()->with('success','Profile Photo successfully updated');
-        }else{
-            return Redirect::back()->with('failure','Please upload a photo');
+        if($request->email == "admin"){
+            $mail->mailto = $user->inactive_email;
+        } else {
+            $mail->mailto = $user->email;
         }
+
+        $mail->subject = "Custodian Portal - Reset Password";
+        $mail->content = view('mails',["user"=>$user , "type"=>"password_reset"]);
+        $mail->save();
+
+        return Redirect::to('/')->with('success','New password has been sent to your registered email id');
+
     }
 
     public function viewFile(){
@@ -252,7 +401,7 @@ class UserController extends Controller {
 
     public function checkReports($type = 0){
         $today = date("Y-m-d");
-        $reports = DB::table("proxy_ad")->select("proxy_ad.id","companies.com_name","companies.com_id","proxy_ad.record_date","proxy_ad.meeting_date")->join("companies","companies.com_id","=","proxy_ad.com_id")->where("meeting_date",">=",$today)->orderBy("meeting_date","ASC")->limit(100)->get();
+        $reports = DB::table("proxy_ad")->select("proxy_ad.id","companies.com_name","companies.com_id","proxy_ad.record_date","proxy_ad.meeting_date","proxy_ad.evoting_plateform")->join("companies","companies.com_id","=","proxy_ad.com_id")->where("meeting_date",">=",$today)->where("debenture",0)->orderBy("meeting_date","ASC")->limit(100)->get();
         $users = User::select("id","name")->where("privilege",3)->whereRaw(" id = parent_user_id ")->get();
         foreach ($reports as $report) {
             echo '--------------- '.$report->id.' Company - '.$report->com_name.' id - '.$report->com_id.' Meeting Date '.$report->meeting_date.'<br>';
@@ -273,7 +422,7 @@ class UserController extends Controller {
             }
             echo '<br>--------------- <br>';
 
-            $proxy_reports = DB::table("user_voting_proxy_reports")->select("user_voting_proxy_reports.user_id","users.name")->join("users","users.id","=","user_voting_proxy_reports.user_id")->where("user_voting_proxy_reports.report_id",$report->id)->get();
+            $proxy_reports = DB::table("aims_user_voting_proxy_reports")->select("aims_user_voting_proxy_reports.user_id","users.name")->join("users","users.id","=","aims_user_voting_proxy_reports.user_id")->where("aims_user_voting_proxy_reports.report_id",$report->id)->get();
             $proxy_report_user_ids = [];
             foreach ($proxy_reports as $proxy_report) {
                 if(in_array($proxy_report->user_id, $user_ids)){
@@ -283,7 +432,7 @@ class UserController extends Controller {
                     echo "<span style='background:#f00'>".$proxy_report->name." (".$proxy_report->user_id.") -  AVAILABLE BUT NO HOLDING</span><br>";
 
                     if($type == 1){
-                        DB::table("user_voting_proxy_reports")->where("user_id",$proxy_report->user_id)->where("report_id",$report->id)->delete();
+                        DB::table("aims_user_voting_proxy_reports")->where("user_id",$proxy_report->user_id)->where("report_id",$report->id)->where("aims_user_voting_proxy_reports.physical",0)->delete();
                     }
 
                 }
@@ -294,7 +443,7 @@ class UserController extends Controller {
                     echo "<span style='background:#f00'>".$user->name." (".$user->id.") - NOT AVAILABLE BUT HOLDING AVAILABLE</span><br>";
                     
                     if($type == 1){
-                        DB::table("user_voting_proxy_reports")->insert(array(
+                        DB::table("aims_user_voting_proxy_reports")->insert(array(
                             "user_id" => $user->id,
                             "report_id" => $report->id,
                             "forced" => 1
@@ -310,7 +459,71 @@ class UserController extends Controller {
 
     }
 
+    public function check(){
+        $temp_companies = DB::table("temp_companies")->pluck("temp_com_id","com_isin")->toArray();
+        return $temp_companies;
+    }
 
-    
+    public function setMeetingISIN(){
+        $str = "";
+        $meetings = DB::table("proxy_ad")->select("proxy_ad.id","companies.com_isin")->join("companies","proxy_ad.com_id","=","companies.com_id")->where("proxy_ad.meeting_date",">=","2019-01-01")->get();
+        foreach ($meetings as $meeting) {
+            $str .= $meeting->id." - ".$meeting->com_isin."<br>";
+
+            DB::table("proxy_ad")->where("id",$meeting->id)->update(array(
+                "meeting_isin" => $meeting->com_isin
+            ));
+
+        }
+
+        return $str;
+
+    }
+
+    public function updateUserActivity(){
+        $activities = DB::table("user_activities")->get();
+
+        foreach ($activities as $activity) {
+            $time = strtotime($activity->created_at) + 5.5*60*60;
+            DB::table("user_activities")->where("id",$activity->id)->update(array(
+                "created_at" => date("Y-m-d H:i:s",$time)
+            ));
+        }
+    }
+
+    public function checkResolutions(){
+        $today = date("Y-m-d");
+
+        $meetings = Proxy::listing()->where("proxy_ad.meeting_date",">=",$today)->orderBy("proxy_ad.meeting_date","ASC")->get();
+
+        $str = '<table cellpadding="5" cellspacing="0" border="1">';
+        $str .= '<tr>';
+        $str .= '<td>COM NAME</td>';
+        $str .= '<td>MEETING DATE</td>';
+        $str .= '<td>SES ID</td>';
+        $str .= '<td>SES SYSTEM</td>';
+        $str .= '<td>DB SYSTEM</td>';
+        $str .= '</tr>';
+
+        foreach ($meetings as $meeting) {
+            
+            $db_v = DB::table("voting")->where("report_id",$meeting->id)->count();
+
+            $ses_v = file_get_contents("https://portal.sesgovernance.com/vote_count.php?report_id=".$meeting->id);
+
+            $str .= '<tr>';
+            $str .= '<td>'.$meeting->com_name.'</td>';
+            $str .= '<td>'.$meeting->meeting_date.'</td>';
+            $str .= '<td>'.$meeting->id.'</td>';
+            $str .= '<td>'.$ses_v.'</td>';
+            $str .= '<td>'.$db_v.'</td>';
+            $str .= '<td>'.($db_v == $ses_v ? '' : 'NOT OK').'</td>';
+            $str .= '</tr>';
+        }
+
+        $str .= '</table>';
+
+        return $str;
+    }
     
 }

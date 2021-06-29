@@ -1,0 +1,443 @@
+.ng-cloak{
+	display:none !important;
+}
+
+label.error {
+	font-size: 12px;
+	color: #f64e60;
+}
+
+span.error {
+	font-size: 12px;
+	color: #f64e60;
+}
+
+.form-control[readonly] {
+	background-color: #EEE;
+}
+
+.page-title-cont {
+	border-bottom:1px solid #555; margin-bottom:20px;
+}
+
+.table-div {
+	width: 100%;
+	display: table;
+	> div {
+		display: table-cell;
+	}
+}
+
+.datepicker {
+	width: auto;
+	&.form-control {
+		width: 100%;
+	}
+}
+
+.remove-icon {
+	width: 32px;
+    height: 32px;
+    position: absolute;
+    cursor: pointer;
+    top: 35px;
+    right: 5px;
+    z-index: 999;
+}
+
+.date-div {
+	display: inline-block;
+	padding: 10px 0 0 10px;
+	a {
+		color: #888;
+		font-size: 12px;
+		&.active {
+			font-weight: bold;
+			color: #000;
+		}
+	}
+}
+
+.date-set {
+	background: #36c6d3;
+	padding: 10px;
+	display: inline-block;
+	margin-left: 20px;
+	color: #FFF;
+	a {
+		color: #FFF;
+	}
+}
+
+.selectize-control.single {
+	.selectize-input {
+		box-shadow: none;
+	    background: #FFF;
+	    height: 34px;
+	}
+}
+
+.selectize-input {
+	box-shadow: none;
+    background: #FFF;
+    min-height: 34px;
+}
+
+.portlet > .portlet-title.loading {
+	border-bottom: 1px solid #f64e60;
+}
+
+.bs-modal-lg {
+	.modal-dialog {
+		width: 800px;
+	}
+}
+
+.modal-large {
+	.modal-dialog {
+		width: 95%;
+	}
+}
+
+.modal-front {
+	z-index: 10051;
+}
+
+.errors{
+	color:#f64e60
+}
+
+.table.fixedHeader-floating.no-footer {
+	top: 50px !important;
+	width: auto !important;
+	th {
+		font-size: 12px;
+		box-sizing: content-box;
+		border-color: white;
+		&:after {
+			display: none;
+		}
+	}
+}
+
+.profile-pic{
+	img{
+		width: 100%;
+		border-radius: 100%
+	}
+}
+
+
+.loader {
+  height: 2px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  background-color: #ddd;
+  &.mt-20 {
+  	margin-top: -20px;
+  	margin-bottom: 20px;
+  }
+}
+.loader:before{
+  display: block;
+  position: absolute;
+  content: "";
+  left: -200px;
+  width: 200px;
+  height: 2px;
+  background-color: #222;
+  animation: loading 2s linear infinite;
+}
+
+@keyframes loading {
+    from {left: -200px; width: 30%;}
+    50% {width: 30%;}
+    70% {width: 70%;}
+    80% { left: 50%;}
+    95% {left: 120%;}
+    to {left: 100%;}
+}
+
+.fade-in {
+	opacity: 1;
+	animation-name: fadeInOpacity;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-in;
+	animation-duration: 0.4s;
+}
+
+@keyframes fadeInOpacity {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+.modal-content {
+	min-height: 200px;
+}
+
+.bootbox {
+	.modal-content {
+		min-height: auto;
+	}
+}
+
+.scheme-row {
+	background: #EEE;
+	padding: 10px;
+	&.yellow {
+		background: #f8e599;
+	}
+	&.green {
+		background: #cbf899;	
+	}
+}
+
+.client-row{
+	background: #EEE;
+	padding: 10px;
+	margin: 10px;
+	&.yellow {
+		background: #eff4a5;
+	}
+	&.green {
+		background: #cbf899;	
+	}
+	&.red {
+		background: #f8af99;	
+	}
+	.client-name {
+		font-size: 20px;
+	}
+	.meta {
+		
+	}
+}
+
+.table-compact {
+	thead {
+		tr {
+			th {
+				padding: 5px;
+				font-size: 12px;
+			}
+		}
+	}
+	tbody {
+		tr {
+			td {
+				padding: 5px;
+				font-size: 12px;
+			}
+		}
+	}
+}
+
+.portlet.light {
+	&.no-pad {
+		padding: 0;
+		margin-bottom: 0;
+	}
+}
+
+.table>tbody>tr>td {
+	&.day-cell {
+		padding: 0;
+		width: 2%;
+		.day-meta {
+			font-size: 12px;
+		}
+	}
+}
+
+.meeting {
+	background: #AAA;
+	padding: 2px 8px;
+	margin: 1px 0;
+	text-align: center;
+	font-size: 13px;
+	position: relative;
+	a {
+		color: #FFF;
+		text-decoration: none;
+		display: block;
+	}
+	&.type_0 {
+		background: #2196F3 !important;
+	}
+	&.type_1 {
+		background: #6576C2 !important;
+	}
+	&.type_2 {
+		background: #76AF73 !important;
+	}
+	&.type_3 {
+		background: #8E698B !important;
+	}
+	&.type_4 {
+		background: #CC3300 !important;
+	}
+	&.type_5 {
+		background: #A12A85 !important;
+	}
+	span.physical {
+		position: absolute;
+	    left: -6px;
+	    width: 16px;
+	    height: 16px;
+	    background: #2b0505;
+	    border-radius: 50% !important;
+	    top: 3px;
+	    color: #FFF;
+	    font-size: 11px;
+	    font-weight: bold;
+	}
+	&.big {
+		display: inline-block;
+		border: 3px solid #FFF;
+		a {
+			padding: 5px 15px;
+			
+		}
+		&.selected {
+			border: 3px solid #555;
+			border-radius: 3px !important;
+			a {
+				padding: 3px 15px;
+				font-size: 16px;
+			}
+		}
+	}
+}
+
+.day-cell {
+	&.grey {
+		background: #EEE;
+		.day-meta {
+			color: #CCC;
+		}
+	}
+	> div {
+		min-height: 100px;
+		padding: 8px;
+		
+	}
+	.com-count{
+		background: #fff;
+		color: #000 !important;
+	    padding: 1px 10px;
+	    border-radius: 4px !important;
+	    font-size: 10px;
+	}
+}
+
+.deb-count{
+	background: #000;
+	color: #FFF !important;
+    padding: 1px 10px;
+    border-radius: 4px !important;
+    font-size: 10px;
+    &.big {
+    	font-size: 15px;
+    }
+}
+
+.notifications {
+	tr {
+		td {
+			p {
+				margin-top:5px;
+				margin-bottom:5px;
+			}
+		}
+	}
+}
+
+.ses-reco {
+	
+	padding: 5px;
+	display: inline-block;
+	color: #000;
+	position: relative;
+	width: 80px;
+	text-align: center;
+
+	&.FOR {
+		color: #FFF;
+		background: #4caf50;
+	}
+
+	&.AGAINST {
+		color: #FFF;
+		background: #e90909;
+	}
+
+	&.ABSTAIN {
+		color: #FFF;
+		background: #0958e9;
+	}
+
+	.details {
+		display: none;
+		position: absolute;
+		width: 300px;
+		padding: 10px;
+		bottom: 100%;
+		background: #000;
+		color: #FFF;
+		font-size: 13px;
+		margin-left: -110px;
+		text-align: center;
+		margin-bottom: 10px;
+	}
+	.arrow-down {
+		display: none;
+		width: 0; 
+		height: 0; 
+		position: absolute;
+		bottom: 100%;
+		border-left: 20px solid transparent;
+		border-right: 20px solid transparent;
+		border-top: 20px solid #000;
+		left: 50%;
+		margin-left: -20px;
+	}
+	&:hover {
+		.details{
+			display: block;
+		}
+		.arrow-down{
+			display: block;
+		}
+	}
+}
+
+ul.pagination {
+	float: right;
+	a {
+		outline: none;
+		&:active,&:focus {
+			outline: none;
+			box-shadow: none;
+		}
+	}
+}
+
+.total-count {
+	font-style: italic;
+	color: #888;
+	font-size: 12px;
+	padding-top: 5px;
+	span {
+		font-style: normal;
+		color: #222;
+	}
+}
+
+span.has-error {
+	color: #b10e0e;
+}
