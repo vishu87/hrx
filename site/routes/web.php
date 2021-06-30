@@ -94,6 +94,8 @@ Route::group(["middleware"=>["auth"],"prefix"=>"api" ],function(){
 			Route::post('/init','CompaniesController@companiesInit');
 			Route::post('/save','CompaniesController@storeCompany');
 			Route::get('/delete/{company_id}','CompaniesController@deleteCompany');
+			Route::post('/store/{company_id}','CompaniesController@storeUser');
+
 
 		});
 

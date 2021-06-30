@@ -205,6 +205,52 @@ class CompaniesController extends Controller {
         return view('admin.companies.view',compact('sidebar','subsidebar','company','persons','users'));
 
     }
+    public function storeUser(Request $request, $company_id =0){
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => 'required|email|unique:users'
+        ]);
+        if($validator->passes()){
+            // $user = User::find($request->id);
+
+          // if(!$user){
+            $user = new User;
+          // }
+
+          $user->privilege = 2;
+          $user->name = $request->name;
+          $user->email = $request->email;
+          $user->phone_number = $request->phone_number;
+          $user->company_id = $company_id;
+
+          // $password = User::getRandPassword();
+          $password = "sample";
+          $user->password = Hash::make($password);
+          $user->password_check = $password;
+            
+          $user->active = 0;
+          $user->status = 0;
+          $user->user_access = 0;
+
+          $user->added_by = Auth::id();
+          $user->save();
+          
+          $company = User::where('company_id',$company_id)->first();
+          // $company = User::find($request->id);
+
+          $user->parent_user_id = $company->id;
+          $user->save();
+
+            $data['success']=true;
+        }
+        else{
+            $data['success']= false;
+            $data['message'] = $validator->errors()->first();
+        }
+        return Response::json($data,200,array());
+
+      
+    }
   
 }
 

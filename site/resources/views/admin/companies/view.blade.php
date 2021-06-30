@@ -91,11 +91,56 @@
                         </tr>
                         @endforeach
                     </tbody>
-                </table>
+                </table>  
+            </div>
+            <div ng-controller="companyUserCtrl" ng-init=" company_id = {{(isset($company->id))?$company->id:''}};">
                 <div class="card-toolbar">
-                    <a href="{{url('/admin/users/add')}}" class="btn btn-primary" >Add New</a>
+                <!-- <a href="{{url('/admin/users/add')}}" class="btn btn-primary" >Add New</a> -->
+                    <a ng-click="adduserModal()" href="javascript:;" class="btn btn-primary btn-sm">
+                        Add New
+                    </a> 
                 </div>
-                
+                <div class="modal fade" id="usermodal" >
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Add New user</h5>
+                            </div>
+                            <div class="modal-body">
+                                <form name="userForm" ng-submit="onUserSubmit(userForm.$valid)" novalidate>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Name</label>  
+                                                <input type="text" ng-model="formData.name" class="form-control" required="">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Email</label>  
+                                                <input type="text" ng-model="formData.email" class="form-control" required="">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label>Phone number</label>  
+                                                <input type="text" ng-model="formData.phone_number" class="form-control" required="">
+                                            </div>
+                                        </div>
+
+                                    </div>  
+                                    <div>
+                                        <button type="submit" class="btn btn-primary btn-sm " ladda="processing">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
       
