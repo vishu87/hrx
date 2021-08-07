@@ -32,10 +32,10 @@
                         <th>Notification (Days)</th>
                         <td>{{$company->notification}}</td>
                     </tr>
-                   <!--  <tr>
+                    <tr>
                         <th>Subscription status</th>
-                        <td>{{$company->subscription_id}}</td>
-                    </tr> -->
+                        <td>{{$subscriptions[$company->subscription_id]}}</td>
+                    </tr>
                     <tr>
                         <th>Address</th>
                         <td>{{$company->address}}</td>

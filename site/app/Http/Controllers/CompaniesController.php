@@ -20,8 +20,12 @@ class CompaniesController extends Controller {
 
 
     public function listing(){
-
-        $data['companies'] = DB::table('companies')->get();
+        $companies = DB::table('companies')->get();
+        $subscriptions = Company::subscriptions();
+        foreach($companies as $company){
+            $company->sub_status = (isset($company->subscription_id))?$subscriptions[$company->subscription_id]:'';
+        }
+        $data['companies'] =  $companies;
         $data['success'] = true;
         return Response::json($data,200,array());
     }
@@ -196,13 +200,14 @@ class CompaniesController extends Controller {
     public function companyview($company_id ){
         $sidebar = 'companies';
         $subsidebar = 'companies';
-      
+        $subscriptions = Company::subscriptions();
+        
         $company = Company::select('companies.*')->where('companies.id',$company_id)->first();
         $persons = DB::table('company_persons')->select('company_persons.name','company_persons.email','company_persons.phone_no')->where('company_persons.company_id',$company_id)->get();
         $users = User::select('users.*')->where('users.company_id',$company_id)->where('privilege','2')->get();
         // $users = User::getCompanyUsersObject();
 
-        return view('admin.companies.view',compact('sidebar','subsidebar','company','persons','users'));
+        return view('admin.companies.view',compact('sidebar','subsidebar','company','persons','users','subscriptions'));
 
     }
     public function storeUser(Request $request, $company_id =0){

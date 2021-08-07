@@ -25,6 +25,7 @@
                                 <th class="text-dark-50 font-weight-lighter">SN</th>
                                 <th class="text-dark-50 font-weight-lighter">Name</th>
                                 <th class="text-dark-50 font-weight-lighter">Email</th>
+                                <th class="text-dark-50 font-weight-lighter">Subscription status</th>
                                 <th class="text-dark-50 font-weight-lighter">Mobile</th>
                                 <th class="text-dark-50 font-weight-lighter">#</th>
                             </tr>
@@ -34,6 +35,7 @@
                                 <td>@{{$index+1}}</td>
                                 <td>@{{company.name}}</td>
                                 <td>@{{company.email}}</td>
+                                <td>@{{company.sub_status}}</td>
                                 <td>@{{company.phone_no}}</td>
                                 <td>
                                     <a href="{{url('/admin/companies/view')}}/@{{company.id}}" class="btn btn-sm btn-success">View</a>
