@@ -40,44 +40,5 @@
 		</div>
 
     </div>
-    <div class="row">
-    	<div class="col-md-12">
-    		<div class="card card-custom ng-cloak">
-	        <div class="card-header">
-	        	<div class="card-title"><h3 class="card-label">Job Offers Details</h3></div>
-	        </div>
-
-	        <div class="fade-in card-body"> 
-	            <table class="table table-hover" id="datatable">
-	                <thead>
-	                    <th>SN</th>
-	                    <th>Candidate Name</th>
-	                    <th>Email</th>
-	                    <th>Phone No</th>
-	                    <th>Company name</th>
-	                    <th style="width: 170px;">Notification (Days)</th>
-	                    <th>Created at</th>
-	                </thead>
-	                <tbody>
-	                    <?php $count =1;?>
-	                    @foreach($offers as $offer)
-	                    <tr>
-	                        <td>{{$count++}}</td>
-	                        <td>{{$offer->candidate_name}}</td>
-	                        <td>{{$offer->email}}</td>
-	                        <td>{{$offer->phone_no}}</td>
-	                   		<td>{{$offer->company_name}}</td>
-	                   		<td style="text-align: center;">{{$offer->notification}}</td>
-	                   		<td>{{date('d-m-Y',strtotime($offer->created_at))}}</td>
-	                    </tr>
-	                    @endforeach
-	                </tbody>
-
-	            </table>
-	        </div>
-    	</div>
-	 	
-	</div>
-
-    </div>
+    
 @endsection

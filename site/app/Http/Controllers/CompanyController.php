@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Company, App\User;
 use Input, Response, DB , Validator , Redirect, Hash, App\MailQueue;
 
-class CompaniesController extends Controller {
+class CompanyController extends Controller {
 
     public function dashboard(){
         return view('companies.dashboard',["sidebar"=>"dashboard","subsidebar"=>"dashboard"]);
@@ -23,7 +23,7 @@ class CompaniesController extends Controller {
         $companies = DB::table('companies')->get();
         $subscriptions = Company::subscriptions();
         foreach($companies as $company){
-            $company->sub_status = (isset($company->subscription_id))?$subscriptions[$company->subscription_id]:'';
+            $company->sub_status = (isset($company->status))?$subscriptions[$company->status]:'';
         }
         $data['companies'] =  $companies;
         $data['success'] = true;
@@ -47,10 +47,8 @@ class CompaniesController extends Controller {
         if (Input::get("company_id") > 0) {
             $company = DB::table("companies")->where('id',Input::get("company_id"))->first();
             if ($company) {
-
                 $morePersons = DB::table('company_persons')->where('company_id',$company->id)
                 ->get();
-
                 $data['company'] = $company;
                 $data['morePersons'] = $morePersons;
             }
@@ -61,22 +59,17 @@ class CompaniesController extends Controller {
 
     public function storeCompany(Request $request){
         $cre = [
-            'phone_no' =>$request->phone_no,
             'name' =>$request->name,
-            'email' =>$request->email
+            'domain' =>$request->domain,
+            'notification' =>$request->notification,
+            'status' =>$request->status
         ];
         $rules = [
-            'phone_no' => 'required',
             'name' => 'required',
-            'email' => 'required|email|unique:users'
+            'domain' => 'required',
+            'notification' => 'required',
+            'status' => 'required'
         ];
-
-        if($request->id){
-            $user = User::where('company_id',$request->id)->first();
-            if($user){
-                $rules['email'] = 'required|email|unique:users,email,'.$user->id;
-            }
-        }
 
         $validator = Validator::make($cre, $rules);
         if ($validator->passes()) {
@@ -91,8 +84,7 @@ class CompaniesController extends Controller {
             $company->email = $request->email;
             $company->phone_no = $request->phone_no;
             $company->address = $request->address;
-            $company->subscription_id = $request->subscription_id;
-            $company->status = 0;
+            $company->status = $request->status;
             $company->domain = $request->domain;
             $company->notification = $request->notification;
             $company->save();
@@ -204,9 +196,9 @@ class CompaniesController extends Controller {
         
         $company = Company::select('companies.*')->where('companies.id',$company_id)->first();
         $persons = DB::table('company_persons')->select('company_persons.name','company_persons.email','company_persons.phone_no')->where('company_persons.company_id',$company_id)->get();
+        
         $users = User::select('users.*')->where('users.company_id',$company_id)->where('privilege','2')->get();
-        // $users = User::getCompanyUsersObject();
-
+        
         return view('admin.companies.view',compact('sidebar','subsidebar','company','persons','users','subscriptions'));
 
     }

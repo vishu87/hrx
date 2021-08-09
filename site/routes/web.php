@@ -38,9 +38,9 @@ Route::group(["middleware"=>["auth","ses"],"prefix"=>"admin"],function(){
 	Route::get('/dashboard','AdminController@dashboard');
 	
 	Route::group(["prefix"=>"companies"],function(){
-		Route::get('/','CompaniesController@companies');
-		Route::get('/add','CompaniesController@addcompany');
-		Route::get('/view/{company_id}','CompaniesController@companyview');
+		Route::get('/','CompanyController@companies');
+		Route::get('/add','CompanyController@addcompany');
+		Route::get('/view/{company_id}','CompanyController@companyview');
 		
 	});
 
@@ -54,7 +54,7 @@ Route::group(["middleware"=>["auth","ses"],"prefix"=>"admin"],function(){
 
 Route::group(["middleware"=>["auth","admin"],"prefix"=>"company"],function(){
 	
-	Route::get('/dashboard','CompaniesController@dashboard');
+	Route::get('/dashboard','CompanyController@dashboard');
 
 	Route::group(["prefix"=>"users"],function(){
 		Route::get('/','UserAdminController@index');
@@ -76,7 +76,7 @@ Route::group(["middleware"=>["auth"],"prefix"=>"api" ],function(){
 	// Route::get('get-report/{report_id}','SESController@getReport');
 
 	Route::group(["prefix"=>"company"],function(){
-		Route::post('/save','CompaniesController@storeCompany');
+		Route::post('/save','CompanyController@storeCompany');
 
 		Route::group(["prefix"=>"job-offers"],function(){
 			Route::post('/init','JobOffersController@offersInit');
@@ -90,16 +90,16 @@ Route::group(["middleware"=>["auth"],"prefix"=>"api" ],function(){
 	Route::group(["prefix"=>"admin"],function(){
 		
 		Route::group(["prefix"=>"companies"],function(){
-			Route::get('/','CompaniesController@listing');
-			Route::post('/init','CompaniesController@companiesInit');
-			Route::post('/save','CompaniesController@storeCompany');
-			Route::get('/delete/{company_id}','CompaniesController@deleteCompany');
-			Route::post('/store/{company_id}','CompaniesController@storeUser');
+			Route::get('/','CompanyController@listing');
+			Route::post('/init','CompanyController@companiesInit');
+			Route::post('/save','CompanyController@storeCompany');
+			Route::get('/delete/{company_id}','CompanyController@deleteCompany');
+			Route::post('/store/{company_id}','CompanyController@storeUser');
 
 
 		});
 
-		Route::post('updateCompany','CompaniesController@updateCompanies');
+		Route::post('updateCompany','CompanyController@updateCompanies');
 		Route::get('/users','AdminController@userInit');
 		Route::get('/delete/{id}','AdminController@deleteUser');
 

@@ -45,13 +45,11 @@
                         </div>
                         <div class="form-group col-md-3">
                             <label class="label-control">Email</label>
-                            <span class="text-danger">*</span>
-                            <input type="text" class="form-control" ng-model="formData.email" required> 
+                            <input type="text" class="form-control" ng-model="formData.email"> 
                         </div>
                         <div class="form-group col-md-3">
                             <label class="label-control">Phone No</label>
-                            <span class="text-danger">*</span>
-                            <input type="text" class="form-control" ng-model="formData.phone_no" required> 
+                            <input type="text" class="form-control" ng-model="formData.phone_no"> 
                         </div>
                         <div class="form-group col-md-3">
                             <label class="label-control">Domain</label>
@@ -65,15 +63,14 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label class="label-control">Address</label>
-                            <span class="text-danger">*</span>
-                            <input type="text" class="form-control" ng-model="formData.address" required> 
+                            <input type="text" class="form-control" ng-model="formData.address"> 
                         </div>
                         <div class="form-group col-md-2">
                             <label class="label-control">Subsription Status</label>
-                            <select ng-model="formData.subscription_id" class="form-control" convert-to-number>
+                            <span class="text-danger">*</span>
+                            <select ng-model="formData.status" class="form-control" convert-to-number required>
                                 <option value="">Select</option>
                                 <option value="@{{key}}" ng-repeat="(key,subscription) in subscriptions">@{{subscription}}</option>
-
                             </select>
                             
                         </div>
@@ -113,6 +110,8 @@
                             <button type="button" class="btn btn-sm btn-primary" ng-click="addMorePersons()">Add more</button>
                         </div>
                     </div>
+
+                    <hr>
                     
                     <div class="row" style="margin-top: 20px">
                         <div class="col-md-12">

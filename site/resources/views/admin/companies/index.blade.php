@@ -40,7 +40,6 @@
                                 <td>
                                     <a href="{{url('/admin/companies/view')}}/@{{company.id}}" class="btn btn-sm btn-success">View</a>
                                    
-                                    <a href="{{url('/admin/companies/add?id=')}}@{{company.id}}" class="btn btn-sm btn-warning" ng-click="editcompany(company)" ladda="company.processing">Edit</a>
                                     <button class="btn btn-danger btn-sm ml-1" ng-click="deleteCompany(company,$index)" style="width: 33px;"><i class="fa fa-close" style="font-size: 15px;"></i></button>
                                 </td>
 

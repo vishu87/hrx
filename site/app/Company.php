@@ -16,8 +16,7 @@ class Company extends Model
 
 		return array(
 			"1" => "Active",
-			"2" => "Inactive",
-			
+			"2" => "Inactive"
 		);
 
 	}

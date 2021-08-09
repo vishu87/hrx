@@ -10,15 +10,11 @@ use App\MailQueue;
 class AdminController extends Controller {
 
     public function dashboard(){
+        
         $companies = DB::table("companies")->count();
         $job_offers = DB::table("job_offers")->count();
-        $offers = DB::table("job_offers")
-        ->select('job_offers.candidate_name','job_offers.email','job_offers.phone_no','companies.name as company_name','companies.notification','job_offers.created_at')
-        ->leftJoin('companies','companies.id','=','job_offers.company_id')
-        ->get();
 
-        return view('admin.dashboard',["sidebar"=>"dashboard","subsidebar"=>"dashboard","companies"=>$companies,"job_offers"=>$job_offers
-        ,"offers"=>$offers]);
+        return view('admin.dashboard',["sidebar"=>"dashboard","subsidebar"=>"dashboard","companies"=>$companies,"job_offers"=>$job_offers]);
     }
 
     public function alertList(){

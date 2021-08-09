@@ -297,25 +297,19 @@ app.controller('companyUserCtrl', function($scope , $http, $timeout , DBService)
         $('#usermodal').modal("show");
     } 
     $scope.onUserSubmit = function(){
-        // console.log($scope.formData);
-        // return;
 
         DBService.postCall($scope.formData,'/api/admin/companies/store/'+$scope.company_id).then(function(data){
             if (data.success) {
                 $('#usermodal').modal("hide");
-                $scope.formData = '';
-            }else{
+                location.reload();
+                $scope.formData = {};
+            } else {
                 bootbox.alert(data.message);
             }
-
             $scope.processing = false;
         });
     }
 
-    // $scope.init = function(){
-    //     console.log('This is company_id: '+$scope.company_id);
-    // }
-    // $scope.init();
 });
 
 

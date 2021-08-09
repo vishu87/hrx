@@ -4,14 +4,16 @@
 	
     <div class="card card-custom">
         <div class="card-header flex-wrap border-0 pb-0">
-            <div class="card-title"><h3 class="card-label">Company Details</h3></div>
+            <div class="card-title"><h3 class="card-label">Company Details - {{ $company->name }}</h3></div>
             <div class="card-toolbar">
+                
+                <a href="{{url('/admin/companies/add?id='.$company->id)}}" class="btn mr-1 btn-warning" ng-click="editcompany(company)" ladda="company.processing">Edit</a>
                 <a href="{{url('/admin/companies')}}" class="btn btn-dark" >Go Back</a>
             </div>
         </div>
         <div class="card-body pt-0">
             <div>
-                <table style="width: 90%;" class="table table-bordered">
+                <table class="table table-bordered">
                     <tr>
                         <th>Name</th>
                         <td>{{$company->name}}</td>
@@ -34,7 +36,7 @@
                     </tr>
                     <tr>
                         <th>Subscription status</th>
-                        <td>{{$subscriptions[$company->subscription_id]}}</td>
+                        <td>{{ $subscriptions[$company->status] }}</td>
                     </tr>
                     <tr>
                         <th>Address</th>
@@ -42,9 +44,10 @@
                     </tr>
                 </table>
             </div>
+            <hr>
             <div>
                 <div><h4 class="card-label pb-1">Contact Persons</h4></div>
-                <table style="width: 60%;" class="table table-bordered" >
+                <table class="table table-bordered" >
                     <thead>
                         <tr>
                             <th>SNO.</th>
@@ -67,9 +70,10 @@
                     </tbody>
                 </table>
             </div>
+            <hr>
             <div>
-                <div><h4 class="card-label pb-1">Users Details</h4></div>
-                <table class="table table-bordered" style="width: 60%;">
+                <div><h4 class="card-label pb-1">Login Details</h4></div>
+                <table class="table table-bordered">
                     <thead>
                         <tr >
                             <th>SNO.</th>
@@ -87,7 +91,9 @@
                             <td>{{$user->name}}</td>
                             <td>{{$user->email}}</td>
                             <td>{{$user->phone_number}}</td>
-                            <td></td>
+                            <td>
+                                <button class="btn btn-danger btn-sm">Delete User</button>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -109,19 +115,19 @@
                             <div class="modal-body">
                                 <form name="userForm" ng-submit="onUserSubmit(userForm.$valid)" novalidate>
                                     <div class="row">
-                                        <div class="col-md-4">
+                                        <div class="col-md-12">
                                             <div class="form-group">
                                                 <label>Name</label>  
                                                 <input type="text" ng-model="formData.name" class="form-control" required="">
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-12">
                                             <div class="form-group">
                                                 <label>Email</label>  
                                                 <input type="text" ng-model="formData.email" class="form-control" required="">
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-12">
                                             <div class="form-group">
                                                 <label>Phone number</label>  
                                                 <input type="text" ng-model="formData.phone_number" class="form-control" required="">

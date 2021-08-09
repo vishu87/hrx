@@ -31,73 +31,13 @@ class UserController extends Controller {
 			
             if(Auth::attempt($cre)){
 
-                if(!Auth::user()->last_login){
-                    return Redirect::to('/update-password');
-                }
-
                 $user = User::find(Auth::id());
                 $user->last_login = date("Y-m-d H:i:s");
                 $user->save();
 
-                $check_password_update = DB::table('user_activities')->where('user_id',Auth::id())->where('activity','change_password')->orderBy('id','desc')->first();
-
-                if($check_password_update){
-                    $datediff = strtotime("now") - strtotime($check_password_update->updated_at);
-
-                    $days = round($datediff / (60*60*24));
-
-                    if($days > 90){
-                        return Redirect::to('/update-password');
-                    }    
-                }
-
-                $last_view = NotificationView::where('user_id',Auth::id())->first();
-
-                $notifications = Notification::select('notifications.id');
-                if( Auth::user()->privilege == 3 || Auth::user()->privilege == 4){
-                    $parent_user_id = Auth::user()->parent_user_id;
-                    $notifications = $notifications->join("aims_user_voting_proxy_reports",function($query) use ($parent_user_id) {
-                        $query->on("aims_user_voting_proxy_reports.report_id","=","notifications.report_id")->where("aims_user_voting_proxy_reports.user_id","=",$parent_user_id);
-                    });
-                }
-
-                if($last_view){
-                    $notifications = $notifications->where('notifications.updated_at','>',$last_view->updated_at);
-                }
-
-                $count = $notifications->count();
-
                 if(Auth::user()->privilege == 1){
-                    return Redirect::to('/admin/dashboard');
+                    return Redirect::to('/admin/dashboard'); 
                 }
-
-                if(Auth::user()->privilege == 2){
-                    Session::put('notification_url','company/notifications');
-                    if($count > 0){
-                        return Redirect::to('/company/dashboard')->with('new_notifications','You have '.$count.' new notifications');
-                    }else{
-
-                        return Redirect::to('/company/dashboard');
-                    }
-                }
-
-                if(Auth::user()->privilege == 3){
-                    return Redirect::to('/mf/dashboard');
-                }
-
-                // if(Auth::user()->privilege == 4){
-                //     Session::put('notification_url','client/notifications');
-                //     if($count > 0){
-                //         return Redirect::to('/client/dashboard')->with('new_notifications','You have '.$count.' new notifications');
-                //     }else{
-
-                //         return Redirect::to('/client/dashboard');
-                //     }
-                // }
-
-                // if(Auth::user()->privilege == 5){
-                //     return Redirect::to('/admin/users');
-                // }
                 
 			}else{
 
