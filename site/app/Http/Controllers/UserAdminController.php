@@ -30,10 +30,11 @@ class UserAdminController extends Controller {
     }
 
     public function store(Request $request,$id=0){
-            $validator = Validator::make($request->all(), [
+        return "ok";
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email|unique:users'
-            ]);
+        ]);
 
         if ($validator->fails()) {
           return Redirect::back()->withErrors($validator)->withInput();

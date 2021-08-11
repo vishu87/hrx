@@ -19,11 +19,34 @@ class CompanyController extends Controller {
     }
 
 
-    public function listing(){
-        $companies = DB::table('companies')->get();
+    public function listing(Request $request){
         $subscriptions = Company::subscriptions();
+        
+        $companies = DB::table('companies');
+
+        if($request->get('name')){
+            $companies = $companies->where("name","LIKE","%".$request->get("name")."%");
+        }
+
+        if($request->get('start_date')){
+            $date = date("Y-m-d",strtotime($request->get('start_date')));
+            $companies = $companies->where("created_at",">=",$date." 00:00:00");
+        }
+
+        if($request->get('end_date')){
+            $date = date("Y-m-d",strtotime($request->get('end_date')));
+            $companies = $companies->where("created_at","<=",$date." 23:59:59");
+        }
+
+        if($request->get('status')){
+            $companies = $companies->where("status","LIKE","%".$request->get("status")."%");
+        }
+        
+        $companies = $companies->get();
+
         foreach($companies as $company){
             $company->sub_status = (isset($company->status))?$subscriptions[$company->status]:'';
+            $company->created_at = date("d-m-Y",strtotime($company->created_at));
         }
         $data['companies'] =  $companies;
         $data['success'] = true;
@@ -197,7 +220,7 @@ class CompanyController extends Controller {
         $company = Company::select('companies.*')->where('companies.id',$company_id)->first();
         $persons = DB::table('company_persons')->select('company_persons.name','company_persons.email','company_persons.phone_no')->where('company_persons.company_id',$company_id)->get();
         
-        $users = User::select('users.*')->where('users.company_id',$company_id)->where('privilege','2')->get();
+        $users = User::select('users.*')->where('users.company_id',$company_id)->get();
         
         return view('admin.companies.view',compact('sidebar','subsidebar','company','persons','users','subscriptions'));
 
@@ -208,35 +231,34 @@ class CompanyController extends Controller {
             'email' => 'required|email|unique:users'
         ]);
         if($validator->passes()){
-            // $user = User::find($request->id);
-
-          // if(!$user){
-            $user = new User;
-          // }
-
-          $user->privilege = 2;
-          $user->name = $request->name;
-          $user->email = $request->email;
-          $user->phone_number = $request->phone_number;
-          $user->company_id = $company_id;
-
-          // $password = User::getRandPassword();
-          $password = "sample";
-          $user->password = Hash::make($password);
-          $user->password_check = $password;
             
-          $user->active = 0;
-          $user->status = 0;
-          $user->user_access = 0;
+            $user = new User;
 
-          $user->added_by = Auth::id();
-          $user->save();
-          
-          $company = User::where('company_id',$company_id)->first();
-          // $company = User::find($request->id);
+            $user->privilege = 2;
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->phone_number = $request->phone_number;
+            $user->company_id = $company_id;
 
-          $user->parent_user_id = $company->id;
-          $user->save();
+            $password = User::getRandPassword();
+            $user->password = Hash::make($password);
+            $user->password_check = $password;
+
+            $user->active = 0;
+            $user->status = 0;
+            $user->user_access = 0;
+
+            $user->added_by = Auth::id();
+            $user->parent_user_id = $company_id;
+            $user->save();
+
+            $subject = "New user account";
+            $content = view('mails',[
+                "type" => "registration",
+                "user" => $user,
+                "password" => $password
+            ]);
+            MailQueue::createMail($user->email,"","",$subject, $content);
 
             $data['success']=true;
         }

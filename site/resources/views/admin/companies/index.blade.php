@@ -10,7 +10,7 @@
             </div>
         </div>
         <div class="card-body pt-0">
-            <div ng-controller="companyCtrl" ng-init="listing()">   
+            <div ng-controller="companyCtrl" ng-init="listing()">
                 <div class="row">
                     <div class="col-md-12 text-center">
                         <div class="spinner-border" role="status" ng-if="processing">
@@ -18,7 +18,43 @@
                         </div>
                     </div>
                 </div>
-                <div class="table-responsive ng-cloak">
+                <div class="filters pb-5">
+                    <div class="row">
+                        <div class="col-md-3">
+                          <label>Name</label>
+                          <input type="text" ng-model="filter.name" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                          <label>Create Date</label>
+                          <div class="table-div">
+                                <div>
+                                    <input type="text" ng-model="filter.start_date" class="form-control datepicker" placeholder="From">
+                                </div>
+                                <div>
+                                    <input type="text" ng-model="filter.end_date" class="form-control datepicker" placeholder="To">
+                                </div>
+                          </div>
+                        </div>
+
+                       <div class="col-md-3">
+                            <label>Status</label>
+                            <select ng-model="filter.status" class="form-control">
+                                <option value="">Select</option>
+                                <option value="1">Active</option>
+                                <option value="2">Inactive</option>
+                            </select>
+                       </div>
+                       
+                       <div class="col-md-3">
+                          <div style="margin-top: 25px;">
+                             <button type="button" class="btn btn-primary" ng-click="searchList()" ladda="filter.searching">Search</button>
+                             <button type="button" class="btn btn-secondary" ng-click="clear()" ladda="filter.clearing">Clear</button>
+                          </div>
+                       </div>
+
+                    </div>
+                 </div>
+                <div class="table-responsive ng-cloak" >
                     <table class="table">
                         <thead>
                             <tr >
@@ -37,6 +73,7 @@
                                 <td>@{{company.email}}</td>
                                 <td>@{{company.sub_status}}</td>
                                 <td>@{{company.phone_no}}</td>
+                                <td>@{{company.created_at}}</td>
                                 <td>
                                     <a href="{{url('/admin/companies/view')}}/@{{company.id}}" class="btn btn-sm btn-success">View</a>
                                    

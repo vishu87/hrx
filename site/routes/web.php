@@ -48,29 +48,52 @@ Route::group(["middleware"=>["auth","ses"],"prefix"=>"admin"],function(){
 		Route::get('/','AdminUserController@index');
 		Route::get('/add/{id?}','AdminUserController@addusers');
 		Route::post('/store/{id?}','AdminUserController@store');
+		Route::get('/delete/{id?}','AdminUserController@deleteUser');
+		Route::get('/active/{id?}','AdminUserController@activeUser');
 	});
 	
 });
 
-Route::group(["middleware"=>["auth","admin"],"prefix"=>"company"],function(){
+Route::group(["middleware"=>["auth","ses"],"prefix"=>"analytics"],function(){
 	
-	Route::get('/dashboard','CompanyController@dashboard');
-
-	Route::group(["prefix"=>"users"],function(){
-		Route::get('/','UserAdminController@index');
-		Route::get('/add/{id?}','UserAdminController@add');
-		Route::post('/store/{id?}','UserAdminController@store');
-		// Route::get('/delete/{user_id?}','UserAdminController@delete');
-	});
-
-	Route::group(["prefix"=>"job-offers"],function(){
-		Route::get('/','JobOffersController@index');	
-		Route::get('/add/{user_id?}','JobOffersController@addOfferLetter');
-		Route::get('/delete/{id}','JobOffersController@deleteOffer');
-
-	});
+	Route::get('/job-offers','AnalyticsController@jobOffers');
+	Route::get('/candidates', 'AnalyticsController@candidates');
+	Route::get('/activities', 'AnalyticsController@activities');
 
 });
+
+Route::group(["middleware"=>["auth","ses"],"prefix"=>"api/analytics"],function(){
+	Route::get('/job-offers/params','AnalyticsController@jobOffersParams');
+	Route::post('/job-offers/list','AnalyticsController@jobOffersList');
+
+	Route::get('/candidates/params', 'AnalyticsController@candidateParams');
+	Route::post('/candidates/list', 'AnalyticsController@candidateList');
+
+	Route::group(["prefix"=>"activities"],function(){
+		Route::get('/params', 'AnalyticsController@activityParams');
+		Route::post('/list', 'AnalyticsController@activityList');
+	});
+});
+
+// Route::group(["middleware"=>["auth","admin"],"prefix"=>"company"],function(){
+	
+// 	Route::get('/dashboard','CompanyController@dashboard');
+
+// 	Route::group(["prefix"=>"users"],function(){
+// 		Route::get('/','UserAdminController@index');
+// 		Route::get('/add/{id?}','UserAdminController@add');
+// 		Route::post('/store/{id?}','UserAdminController@store');
+// 		// Route::get('/delete/{user_id?}','UserAdminController@delete');
+// 	});
+
+// 	Route::group(["prefix"=>"job-offers"],function(){
+// 		Route::get('/','JobOffersController@index');	
+// 		Route::get('/add/{user_id?}','JobOffersController@addOfferLetter');
+// 		Route::get('/delete/{id}','JobOffersController@deleteOffer');
+
+// 	});
+
+// });
 
 Route::group(["middleware"=>["auth"],"prefix"=>"api" ],function(){
 	// Route::get('get-report/{report_id}','SESController@getReport');
@@ -90,12 +113,11 @@ Route::group(["middleware"=>["auth"],"prefix"=>"api" ],function(){
 	Route::group(["prefix"=>"admin"],function(){
 		
 		Route::group(["prefix"=>"companies"],function(){
-			Route::get('/','CompanyController@listing');
+			Route::post('/','CompanyController@listing');
 			Route::post('/init','CompanyController@companiesInit');
 			Route::post('/save','CompanyController@storeCompany');
 			Route::get('/delete/{company_id}','CompanyController@deleteCompany');
 			Route::post('/store/{company_id}','CompanyController@storeUser');
-
 
 		});
 

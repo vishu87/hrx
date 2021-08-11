@@ -24,11 +24,38 @@
 </li>
 @endif
 
+
+<li class="menu-section">
+    <h4 class="menu-text">Analytics</h4>
+    <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
+</li>
+
+<li class="menu-item @if($sidebar == 'job-offers') menu-item-active @endif">
+    <a href="{{url('analytics/job-offers')}}" class="menu-link">
+        <i class="menu-icon flaticon-feed"></i>
+        <span class="menu-text">Job Offers</span>
+    </a>
+</li>
+
+<li class="menu-item @if($sidebar == 'candidates') menu-item-active @endif">
+    <a href="{{url('analytics/candidates')}}" class="menu-link">
+        <i class="menu-icon flaticon-users"></i>
+        <span class="menu-text">Candidates</span>
+    </a>
+</li>
+
+<li class="menu-item @if($sidebar == 'activities') menu-item-active @endif">
+    <a href="{{url('analytics/activities')}}" class="menu-link">
+        <i class="menu-icon flaticon-calendar"></i>
+        <span class="menu-text">Activities</span>
+    </a>
+</li>
+
 <li class="menu-section">
     <h4 class="menu-text">Other</h4>
     <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
 </li>
-<!-- <li class="menu-item @if($sidebar == 'clients') menu-item-active @endif" aria-haspopup="true">
+<!-- <li class="menu-item @if($sidebar == 'clients') menu-item-active @endif">
     <a href="{{url('admin/temp-isin')}}" class="menu-link">
         <i class="menu-icon flaticon-list"></i>
         <span class="menu-text">Temp ISIN</span>

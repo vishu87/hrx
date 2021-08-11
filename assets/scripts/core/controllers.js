@@ -1,4 +1,3 @@
-
 app.controller('adminUserCtrl', function($scope , $http, $timeout , DBService){
     $scope.processing = false;
     $scope.users = [];
@@ -104,6 +103,14 @@ app.controller('companyCtrl', function($scope , $http, $timeout , DBService){
     $scope.products = [];
     $scope.subscriptions =[];
     $scope.users=[];
+
+    $scope.filter = {
+        name : "",
+        start_date: "",
+        end_date: "",
+        status : ""
+    }
+
     $scope.formData = {
         morePersons:[],
     };
@@ -128,13 +135,28 @@ app.controller('companyCtrl', function($scope , $http, $timeout , DBService){
 
     $scope.listing = function(){
         $scope.processing = true;
-        DBService.getCall('/api/admin/companies').then(function(data){
+        DBService.postCall($scope.filter,'/api/admin/companies').then(function(data){
             if(data.success){
                 $scope.companies = data.companies;
             }
             $scope.processing = false;
         });
     };
+
+    $scope.searchList = function(){
+        $scope.listing();
+    }
+
+    $scope.clear = function(){
+        $scope.filter = {
+            name : "",
+            start_date: "",
+            end_date: "",
+            status : ""
+        }
+        $scope.listing();
+    }
+
     $scope.clientInit = function(){
         $scope.processing = true;
         
@@ -208,7 +230,7 @@ app.controller('companyCtrl', function($scope , $http, $timeout , DBService){
     $scope.deleteCompany = function(company,index){
         $scope.company_id = company.id;
         console.log($scope.company_id);
-        bootbox.confirm('Are you sure to delete it?',function(result){
+        bootbox.confirm('Are you sure to delete the company?',function(result){
           if(result){
             DBService.getCall('/api/admin/companies/delete/'+ $scope.company_id).then(function(data){
               if(data.success){
@@ -309,7 +331,222 @@ app.controller('companyUserCtrl', function($scope , $http, $timeout , DBService)
             $scope.processing = false;
         });
     }
+});
+
+app.controller('JobOfferCtrl', function($scope, $http, DBService){
+    
+    $scope.loading = false;
+    $scope.dataset = [];
+    $scope.params = [];
+    $scope.filter = {
+        can_id: can_id,
+        page_no : 1,
+        max_per_page : 50,
+        max_page: 1,
+        order_by: '',
+        order_type: 'ASC',
+        export: false
+    }
+    $scope.total = 0
+
+    $scope.getList = function(){
+        $scope.loading = true;
+
+        DBService.postCall($scope.filter,'/api/analytics/job-offers/list')
+        .then(function(data){
+            if (data.success) {
+                if($scope.filter.export){
+                    window.open(data.excel_link,'_blank');
+                } else {
+                    $scope.dataset = data.dataset;
+                    $scope.total = data.total;
+                    $scope.filter.max_page = Math.ceil($scope.total/$scope.filter.max_per_page)
+                }
+            } else {
+                bootbox.alert(data.message);
+            }
+            $scope.loading = false;
+            $scope.filter.searching = false;
+            $scope.filter.clearing = false;
+            $scope.filter.exporting = false;
+            $scope.filter.export = false;
+        });
+    }
+
+    $scope.getParams = function(){
+        DBService.getCall('/api/analytics/job-offers/params')
+        .then(function(data){
+            $scope.params = data.params;
+        });
+    }
+
+    $scope.getParams();
+
+    $scope.searchList = function(){
+        $scope.filter.page_no = 1;
+        $scope.filter.searching = false;
+        $scope.getList();
+    }
+
+    $scope.clear = function(){
+        $scope.filter = {
+            page_no : 1,
+            max_per_page : 50,
+            max_page: 1,
+            clearing : true
+        };
+        $scope.getList();
+    }
+
+    $scope.exportList = function(){
+        $scope.exporting = true;
+        $scope.filter.export = true;
+        $scope.getList();
+    }
 
 });
 
 
+app.controller('CandidateCtrl', function($scope, $http, DBService){
+    
+    $scope.loading = false;
+    $scope.dataset = [];
+    $scope.params = [];
+    $scope.filter = {
+        page_no : 1,
+        max_per_page : 5,
+        max_page: 1,
+        order_by: '',
+        order_type: 'ASC',
+        export: false
+    }
+    $scope.total = 0
+
+    $scope.getList = function(){
+        $scope.loading = true;
+
+        DBService.postCall($scope.filter,'/api/analytics/candidates/list')
+        .then(function(data){
+            if (data.success) {
+                if($scope.filter.export){
+                    window.open(data.excel_link,'_blank');
+                } else {
+                    $scope.dataset = data.dataset;
+                    $scope.total = data.total;
+                    $scope.filter.max_page = Math.ceil($scope.total/$scope.filter.max_per_page)
+                }
+            } else {
+                bootbox.alert(data.message);
+            }
+            $scope.loading = false;
+            $scope.filter.searching = false;
+            $scope.filter.clearing = false;
+            $scope.filter.exporting = false;
+            $scope.filter.export = false;
+        });
+    }
+
+    $scope.getParams = function(){
+        DBService.getCall('/api/analytics/candidates/params')
+        .then(function(data){
+            $scope.params = data.params;
+        });
+    }
+
+    $scope.getParams();
+
+    $scope.searchList = function(){
+        $scope.filter.page_no = 1;
+        $scope.filter.searching = false;
+        $scope.getList();
+    }
+
+    $scope.clear = function(){
+        $scope.filter = {
+            page_no : 1,
+            max_per_page : 5,
+            max_page: 1,
+            clearing : true
+        };
+        $scope.getList();
+    }
+
+    $scope.exportList = function(){
+        $scope.exporting = true;
+        $scope.filter.export = true;
+        $scope.getList();
+    }
+
+});
+
+app.controller('ActivitiesCtrl', function($scope, $http, DBService){
+    
+    $scope.loading = false;
+    $scope.dataset = [];
+    $scope.params = [];
+    $scope.filter = {
+        page_no : 1,
+        max_per_page : 25,
+        max_page: 1,
+        order_by: '',
+        order_type: 'ASC',
+        export: false
+    }
+    $scope.total = 0
+
+    $scope.getList = function(){
+        $scope.loading = true;
+
+        DBService.postCall($scope.filter,'/api/analytics/activities/list')
+        .then(function(data){
+            if (data.success) {
+                if($scope.filter.export){
+                    window.open(data.excel_link,'_blank');
+                } else {
+                    $scope.dataset = data.dataset;
+                    $scope.total = data.total;
+                    $scope.filter.max_page = Math.ceil($scope.total/$scope.filter.max_per_page)
+                }
+            } else {
+                bootbox.alert(data.message);
+            }
+            $scope.loading = false;
+            $scope.filter.searching = false;
+            $scope.filter.clearing = false;
+            $scope.filter.exporting = false;
+            $scope.filter.export = false;
+        });
+    }
+
+    $scope.getParams = function(){
+        DBService.getCall('/api/analytics/activities/params')
+        .then(function(data){
+            $scope.params = data.params;
+        });
+    }
+
+    $scope.getParams();
+
+    $scope.searchList = function(){
+        $scope.filter.page_no = 1;
+        $scope.filter.searching = false;
+        $scope.getList();
+    }
+
+    $scope.clear = function(){
+        $scope.filter = {
+            page_no : 1,
+            max_per_page : 5,
+            max_page: 1,
+            clearing : true
+        };
+        $scope.getList();
+    }
+
+    $scope.exportList = function(){
+        $scope.exporting = true;
+        $scope.filter.export = true;
+        $scope.getList();
+    }
+
+});

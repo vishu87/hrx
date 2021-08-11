@@ -22,12 +22,16 @@ class UserController extends Controller {
 
 	public function postLogin(){
 
-		$cre = ["email"=>Input::get("email"),"password"=>Input::get("password")];
+		$cre = [
+            "email"=>Input::get("email"),
+            "password"=>Input::get("password")
+        ];
 		$rules = ["email"=>"required","password"=>"required"];
 		$validator = Validator::make($cre,$rules);
 		if($validator->passes()){
 
             $cre["active"] = 0;
+            $cre["privilege"] = 1;
 			
             if(Auth::attempt($cre)){
 
@@ -39,8 +43,7 @@ class UserController extends Controller {
                     return Redirect::to('/admin/dashboard'); 
                 }
                 
-			}else{
-
+			} else {
 				return Redirect::back()->withInput()->with('failure','Invalid email or password');
 			}
 

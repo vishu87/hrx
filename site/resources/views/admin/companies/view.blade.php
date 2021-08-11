@@ -73,7 +73,18 @@
             <hr>
             <div>
                 <div><h4 class="card-label pb-1">Login Details</h4></div>
-                <table class="table table-bordered">
+                @if(Session::has("success"))
+                    <div class="alert alert-success">
+                        {{Session::get("success")}}
+                    </div>
+                @endif
+                @if(Session::has('failure'))
+                    <div class="alert alert-danger">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <i class="fa fa-ban-circle"></i><strong>Failure!</strong> {{Session::get('failure')}}
+                    </div>
+                @endif
+                <table class="table table-bordered" id="job_offers">
                     <thead>
                         <tr >
                             <th>SNO.</th>
@@ -92,7 +103,8 @@
                             <td>{{$user->email}}</td>
                             <td>{{$user->phone_number}}</td>
                             <td>
-                                <button class="btn btn-danger btn-sm">Delete User</button>
+                                <a href="{{ url('admin/users/active/'.$user->id) }}" class="btn {{ $user->active == 0 ? 'btn-warning' : 'btn-primary' }} btn-sm">{{ $user->active == 0 ? 'Mark Inactive' : 'Mark Active' }}</a>
+                                <a href="{{ url('admin/users/delete/'.$user->id) }}" class="btn btn-danger btn-sm btn-icon" onclick="return confirm('Are you sure to delete the user?')"><i class="fa fa-remove"></i></a>
                             </td>
                         </tr>
                         @endforeach

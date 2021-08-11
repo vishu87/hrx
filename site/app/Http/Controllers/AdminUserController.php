@@ -71,6 +71,7 @@ class AdminUserController extends Controller {
   
 
     public function store(Request $request,$id=0){
+        
         $cre = [
             "name" => Input::get("name"),
             "email" => Input::get("email"),
@@ -78,7 +79,7 @@ class AdminUserController extends Controller {
 
         $rules = [
             "name" => "required",
-            "email" => "required|email",
+            "email" => "required|email|unique:users,email,".$id,
         ];
 
         if ( Input::has("id") ){
@@ -101,7 +102,7 @@ class AdminUserController extends Controller {
             $user->name = $request->name;
             $user->email = $request->email;
             $user->phone_number = $request->phone_number;
-            $password = "sample";
+            $password = User::getRandPassword();
             $user->password = Hash::make($password);
             $user->password_check = $password;
                 
@@ -126,15 +127,32 @@ class AdminUserController extends Controller {
         $user = User::find($id);
 
         if($user){
-            // DB::table('mail_queue')->delete();
+
+            $offers = DB::table("job_offers")->where("added_by",$id)->count();
+
+            if($offers > 0){
+                return Redirect::back()->with("failure","Some job offers are present created by this user. Kindly mark the user inactive");
+            }
+
             $user->delete();
-            $data['success'] = true;
-            $data['message'] = 'User deleted successfully';   
+            
+            return Redirect::back()->with("success","User is successfully deleted");
         }
         else{
-            $data['success'] = false;
-            $data['message'] = 'User not found';
+            return Redirect::back()->with("failure","User is not found");
         }
-        return Response::json($data,200,array());
+    }
+
+    public function activeUser($id){
+        $user = User::find($id);
+
+        if($user){
+            $user->active = $user->active == 0 ? 1 : 0;
+            $user->save();
+            return Redirect::back()->with("success","User status successfully changed");
+        }
+        else{
+            return Redirect::back()->with("failure","User is not found");
+        }
     }
 }
