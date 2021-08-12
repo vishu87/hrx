@@ -264,12 +264,12 @@ class AnalyticsController extends Controller {
 
         if ($request->get("created_start")){
             $date = date("Y-m-d",strtotime($request->get("created_start")));
-            $sql = $sql->where("created_at",">=", $date." 00:00:00");
+            $sql = $sql->where("user_activities.created_at",">=", $date." 00:00:00");
         }
 
         if ($request->get("created_end")){
             $date = date("Y-m-d",strtotime($request->get("created_end")));
-            $sql = $sql->where("created_at","<=", $date." 23:59:59");
+            $sql = $sql->where("user_activities.created_at","<=", $date." 23:59:59");
         }
 
         if ($request->get("group_by")){
