@@ -292,7 +292,7 @@ class AnalyticsController extends Controller {
             $sql = $sql->skip(($page_no - 1) * $max_per_page)->limit($max_per_page);
         }
 
-        $sql = $sql->orderBy("created_at","DESC");
+        $sql = $sql->orderBy("user_activities.created_at","DESC");
 
         $sql = $sql->get();
 
