@@ -33,7 +33,7 @@ Route::group(["middleware"=>["auth"]],function(){
 	
 });
 
-Route::group(["middleware"=>["auth","ses"],"prefix"=>"admin"],function(){
+Route::group(["middleware"=>["auth"],"prefix"=>"admin"],function(){
 
 	Route::get('/dashboard','AdminController@dashboard');
 	
@@ -54,7 +54,7 @@ Route::group(["middleware"=>["auth","ses"],"prefix"=>"admin"],function(){
 	
 });
 
-Route::group(["middleware"=>["auth","ses"],"prefix"=>"analytics"],function(){
+Route::group(["middleware"=>["auth"],"prefix"=>"analytics"],function(){
 	
 	Route::get('/job-offers','AnalyticsController@jobOffers');
 	Route::get('/candidates', 'AnalyticsController@candidates');
@@ -62,7 +62,7 @@ Route::group(["middleware"=>["auth","ses"],"prefix"=>"analytics"],function(){
 
 });
 
-Route::group(["middleware"=>["auth","ses"],"prefix"=>"api/analytics"],function(){
+Route::group(["middleware"=>["auth"],"prefix"=>"api/analytics"],function(){
 	Route::get('/job-offers/params','AnalyticsController@jobOffersParams');
 	Route::post('/job-offers/list','AnalyticsController@jobOffersList');
 
